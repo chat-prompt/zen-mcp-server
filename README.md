@@ -93,7 +93,7 @@ For best results, use Claude Code with:
 
 **Option A: Clone and Automatic Setup** (recommended)
 ```bash
-git clone https://github.com/BeehiveInnovations/zen-mcp-server.git
+git clone https://github.com/chat-prompt/zen-mcp-server.git
 cd zen-mcp-server
 
 # Handles everything: setup, config, API keys from system environment. 
@@ -110,7 +110,7 @@ cd zen-mcp-server
   "mcpServers": {
     "zen": {
       "command": "bash",
-      "args": ["-c", "for p in $(which uvx 2>/dev/null) $HOME/.local/bin/uvx /opt/homebrew/bin/uvx /usr/local/bin/uvx uvx; do [ -x \"$p\" ] && exec \"$p\" --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git zen-mcp-server; done; echo 'uvx not found' >&2; exit 1"],
+      "args": ["-c", "for p in $(which uvx 2>/dev/null) $HOME/.local/bin/uvx /opt/homebrew/bin/uvx /usr/local/bin/uvx uvx; do [ -x \"$p\" ] && exec \"$p\" --from git+https://github.com/chat-prompt/zen-mcp-server.git zen-mcp-server; done; echo 'uvx not found' >&2; exit 1"],
       "env": {
         "PATH": "/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:~/.local/bin",
         "GEMINI_API_KEY": "your-key-here",
