@@ -22,6 +22,25 @@ class OpenAIModelProvider(OpenAICompatibleProvider):
 
     # Model configurations using ModelCapabilities objects
     SUPPORTED_MODELS = {
+        # https://platform.openai.com/docs/models/gpt-5-codex
+        "gpt-5-codex": ModelCapabilities(
+            provider=ProviderType.OPENAI,
+            model_name="gpt-5-codex",
+            friendly_name="OpenAI (GPT-5 Codex)",
+            context_window=400_000,  # 400K tokens
+            max_output_tokens=128_000,  # 128K max output tokens
+            supports_extended_thinking=True,  # Supports reasoning tokens
+            supports_system_prompts=True,
+            supports_streaming=True,
+            supports_function_calling=True,
+            supports_json_mode=True,
+            supports_images=True,  # GPT-5-Codex supports vision
+            max_image_size_mb=20.0,  # 20MB per OpenAI docs
+            supports_temperature=True,  # Regular models accept temperature parameter
+            temperature_constraint=create_temperature_constraint("fixed"),
+            description="GPT-5 Codex (400K context, 128K output) - Advanced model with reasoning support",
+            aliases=["gpt5-codex", "gpt-5-codex"],
+        ),
         "gpt-5": ModelCapabilities(
             provider=ProviderType.OPENAI,
             model_name="gpt-5",
