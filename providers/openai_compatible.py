@@ -303,7 +303,7 @@ class OpenAICompatibleProvider(ModelProvider):
         return sanitized
 
     def _safe_extract_output_text(self, response) -> str:
-        """Safely extract output_text from o3-pro response with validation.
+        """Safely extract output_text from o3-pro/gpt-5-codex response with validation.
 
         Args:
             response: Response object from OpenAI SDK
@@ -318,16 +318,16 @@ class OpenAICompatibleProvider(ModelProvider):
         logging.debug(f"Response attributes: {dir(response)}")
 
         if not hasattr(response, "output_text"):
-            raise ValueError(f"o3-pro response missing output_text field. Response type: {type(response).__name__}")
+            raise ValueError(f"o3-pro/gpt-5-codex response missing output_text field. Response type: {type(response).__name__}")
 
         content = response.output_text
         logging.debug(f"Extracted output_text: '{content}' (type: {type(content)})")
 
         if content is None:
-            raise ValueError("o3-pro returned None for output_text")
+            raise ValueError("o3-pro/gpt-5-codex returned None for output_text")
 
         if not isinstance(content, str):
-            raise ValueError(f"o3-pro output_text is not a string. Got type: {type(content).__name__}")
+            raise ValueError(f"o3-pro/gpt-5-codex output_text is not a string. Got type: {type(content).__name__}")
 
         return content
 
@@ -339,7 +339,7 @@ class OpenAICompatibleProvider(ModelProvider):
         max_output_tokens: Optional[int] = None,
         **kwargs,
     ) -> ModelResponse:
-        """Generate content using the /v1/responses endpoint for o3-pro via OpenAI library."""
+        """Generate content using the /v1/responses endpoint for o3-pro/gpt-5-codex via OpenAI library."""
         # Convert messages to the correct format for responses endpoint
         input_messages = []
 
@@ -348,7 +348,7 @@ class OpenAICompatibleProvider(ModelProvider):
             content = message.get("content", "")
 
             if role == "system":
-                # For o3-pro, system messages should be handled carefully to avoid policy violations
+                # For o3-pro/gpt-5-codex, system messages should be handled carefully to avoid policy violations
                 # Instead of prefixing with "System:", we'll include the system content naturally
                 input_messages.append({"role": "user", "content": [{"type": "input_text", "text": content}]})
             elif role == "user":
@@ -384,7 +384,7 @@ class OpenAICompatibleProvider(ModelProvider):
 
                 sanitized_params = self._sanitize_for_logging(completion_params)
                 logging.info(
-                    f"o3-pro API request (sanitized): {json.dumps(sanitized_params, indent=2, ensure_ascii=False)}"
+                    f"o3-pro/gpt-5-codex API request (sanitized): {json.dumps(sanitized_params, indent=2, ensure_ascii=False)}"
                 )
 
                 # Use OpenAI client's responses endpoint
@@ -431,14 +431,14 @@ class OpenAICompatibleProvider(ModelProvider):
                 if is_retryable and attempt < max_retries - 1:
                     delay = retry_delays[attempt]
                     logging.warning(
-                        f"Retryable error for o3-pro responses endpoint, attempt {actual_attempts}/{max_retries}: {str(e)}. Retrying in {delay}s..."
+                        f"Retryable error for o3-pro/gpt-5-codex responses endpoint, attempt {actual_attempts}/{max_retries}: {str(e)}. Retrying in {delay}s..."
                     )
                     time.sleep(delay)
                 else:
                     break
 
         # If we get here, all retries failed
-        error_msg = f"o3-pro responses endpoint error after {actual_attempts} attempt{'s' if actual_attempts > 1 else ''}: {str(last_exception)}"
+        error_msg = f"o3-pro/gpt-5-codex responses endpoint error after {actual_attempts} attempt{'s' if actual_attempts > 1 else ''}: {str(last_exception)}"
         logging.error(error_msg)
         raise RuntimeError(error_msg) from last_exception
 
@@ -539,8 +539,8 @@ class OpenAICompatibleProvider(ModelProvider):
                     continue  # Skip unsupported parameters for reasoning models
                 completion_params[key] = value
 
-        # Check if this is o3-pro and needs the responses endpoint
-        if resolved_model == "o3-pro":
+        # Check if this is o3-pro/gpt-5-codex and needs the responses endpoint
+        if resolved_model == "o3-pro" or resolved_model == "gpt-5-codex":
             # This model requires the /v1/responses endpoint
             # If it fails, we should not fall back to chat/completions
             return self._generate_with_responses_endpoint(
@@ -735,6 +735,7 @@ class OpenAICompatibleProvider(ModelProvider):
         """
         # Common vision-capable models - only include models that actually support images
         vision_models = {
+            "gpt-5-codex",
             "gpt-5",
             "gpt-5-mini",
             "gpt-4o",
